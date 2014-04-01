@@ -7,7 +7,8 @@
 #idPos 				Position of id tag in filenames of files to load. The id tags are used as
 #					names for the ouput list elements. Postions are defined by separators 
 #					specified by idSplit. e.g. for 'peaks-h3k4me3-homer.bed' with 
-#					idSplit = "-", the idPos for the 'h3k4me3' tag would be 2.
+#					idSplit = "-", the idPos for the 'h3k4me3' tag would be 2. If idPos is not
+#					specified, the basename of the file is used as id tag.
 #idSplit			Specifies strings used to split the filename into elements to obtain id.
 #					Default is "\\.|-|_", for further info see help for split in strsplit().
 #pattern 			Optional pattern (string) for filtering of files in inputFiles (if directory,
@@ -17,13 +18,13 @@
 #excludeCols		Vector containing names or numbers (not both mixed together!) of columns 
 #					to be excluded from input files.
 #row.names 			Specifies the number or name of the column containing the row names. If not
-#					specified nod row names are set. For further info see help for read.table().
+#					specified no row names are set. For further info see help for read.table().
 #header				Logical, specifies whether the files contain a first header row.
 #verbose 			Logical, specifies whether feedback should be printed (default = TRUE).
 #stringsAsFactors 	Logical, specifies whether character vectors should be converted to
 #					factors (default = FALSE). For further info see help for read.table().
 
-load.tables.to.list <- function(inputFiles, idPos, idSplit = "\\.|-|_", pattern = NULL,
+load.tables.to.list <- function(inputFiles, idPos = NULL, idSplit = "\\.|-|_", pattern = NULL,
 								storageType = "data.frame", excludeCols = NULL, row.names = NULL,
 								header = TRUE, verbose = TRUE, stringsAsFactors = FALSE){
 
@@ -54,10 +55,14 @@ load.tables.to.list <- function(inputFiles, idPos, idSplit = "\\.|-|_", pattern 
 		}else if(storageType != "data.frame"){
 			stop("Unknown storageType specified!")
 		}
-		#get "data id" from filename
-		i.split <- strsplit(x=basename(i), split=idSplit)
-		id <- i.split[[1]][idPos]
-		#add to output list
+		#get "id tag" from filename if idPos is specified, else use basename as id tag.
+		if(!is.null(idPos)){
+			i.split <- strsplit(x=basename(i), split=idSplit)
+			id <- i.split[[1]][idPos]
+		}else{
+			id <- basename(i)
+		}
+		#add data to output list
 		output.list[[id]] <- inputData
 	}
 	return(output.list)
